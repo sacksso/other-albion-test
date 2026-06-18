@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albion Online Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo">
+            <img src="assets/images/albion-logo.png" alt="Albion Online" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>'">
+            <h2>Albion Hub</h2>
+        </div>
+        <ul class="nav-links">
+            <li class="active" data-section="map"><i class="fas fa-map"></i><span>Mapa</span></li>
+            <li data-section="market"><i class="fas fa-chart-line"></i><span>Mercado</span></li>
+            <li data-section="gold"><i class="fas fa-coins"></i><span>Precio Oro</span></li>
+            <li data-section="builds"><i class="fas fa-sword"></i><span>Builds</span></li>
+            <li data-section="news"><i class="fas fa-newspaper"></i><span>Noticias</span></li>
+            <li data-section="media"><i class="fas fa-video"></i><span>Media</span></li>
+            <li data-section="updates"><i class="fas fa-code-branch"></i><span>Updates</span></li>
+            <li data-section="notes"><i class="fas fa-sticky-note"></i><span>Notas</span></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Sección Mapa -->
+        <section id="map" class="section active">
+            <h1><i class="fas fa-map"></i> Mapa de Albion</h1>
+            <div class="map-container">
+                <div class="map-wrapper">
+                    <img src="https://raw.githubusercontent.com/ao-data/albion-online-map/master/images/map-full.jpg" alt="Mapa Albion Online" class="map-image" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22><rect width=%22800%22 height=%22600%22 fill=%22%232d2d2d%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2224%22>Mapa no disponible</text></svg>'">
+                    <div class="map-controls">
+                        <button onclick="zoomIn()"><i class="fas fa-plus"></i></button>
+                        <button onclick="zoomOut()"><i class="fas fa-minus"></i></button>
+                        <button onclick="resetZoom()"><i class="fas fa-home"></i></button>
+                    </div>
+                </div>
+                <div class="zone-info">
+                    <h3>Información de Zonas</h3>
+                    <div id="zone-details">
+                        <p><i class="fas fa-info-circle"></i> Haz clic en una zona para ver detalles</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Mercado -->
+        <section id="market" class="section">
+            <h1><i class="fas fa-chart-line"></i> Mercado en Tiempo Real</h1>
+            <div class="market-filters">
+                <select id="city-filter">
+                    <option value="all">Todas las Ciudades</option>
+                    <option value="caerleon">Caerleon</option>
+                    <option value="bridgewatch">Bridgewatch</option>
+                    <option value="martlock">Martlock</option>
+                    <option value="thelford">Thelford</option>
+                    <option value="fortsterling">Fort Sterling</option>
+                    <option value="lymhurst">Lymhurst</option>
+                </select>
+                <select id="quality-filter">
+                    <option value="all">Todas las Calidades</option>
+                    <option value="normal">Normal</option>
+                    <option value="good">Buena</option>
+                    <option value="outstanding">Excepcional</option>
+                    <option value="excellent">Excelente</option>
+                    <option value="masterpiece">Obra Maestra</option>
+                </select>
+                <input type="text" id="item-search" placeholder="Buscar objeto...">
+                <button onclick="searchMarket()"><i class="fas fa-search"></i> Buscar</button>
+            </div>
+            <div class="market-table-container">
+                <table class="market-table">
+                    <thead>
+                        <tr>
+                            <th>Objeto</th>
+                            <th>Ciudad</th>
+                            <th>Precio</th>
+                            <th>Calidad</th>
+                            <th>Encantamiento</th>
+                            <th>Disponibilidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="market-data">
+                        <tr><td colspan="6" class="loading-text">Cargando datos del mercado...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sección Oro -->
+        <section id="gold" class="section">
+            <h1><i class="fas fa-coins"></i> Precio del Oro</h1>
+            <div class="gold-container">
+                <div class="gold-current">
+                    <div class="gold-price-display">
+                        <span class="gold-icon">🪙</span>
+                        <span id="gold-price">Cargando...</span>
+                        <span class="gold-label">Oro / 1M Silver</span>
+                    </div>
+                    <div class="gold-change" id="gold-change">
+                        <i class="fas fa-arrow-up"></i> +0.00%
+                    </div>
+                </div>
+                <div class="gold-chart-container">
+                    <canvas id="goldChart"></canvas>
+                </div>
+                <div class="gold-info">
+                    <div class="info-card">
+                        <h4>Máximo 24h</h4>
+                        <span id="gold-high">-</span>
+                    </div>
+                    <div class="info-card">
+                        <h4>Mínimo 24h</h4>
+                        <span id="gold-low">-</span>
+                    </div>
+                    <div class="info-card">
+                        <h4>Volumen</h4>
+                        <span id="gold-volume">-</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Builds -->
+        <section id="builds" class="section">
+            <h1><i class="fas fa-sword"></i> Builds para Albion</h1>
+            <div class="builds-filters">
+                <select id="build-type">
+                    <option value="all">Todos</option>
+                    <option value="pvp">PVP</option>
+                    <option value="pve">PVE</option>
+                    <option value="gathering">Recolección</option>
+                    <option value="crafting">Crafteo</option>
+                </select>
+                <select id="build-weapon">
+                    <option value="all">Todas las Armas</option>
+                    <option value="axe">Hacha</option>
+                    <option value="bow">Arco</option>
+                    <option value="curse">Maldición</option>
+                    <option value="dagger">Daga</option>
+                    <option value="fire">Fuego</option>
+                    <option value="frost">Hielo</option>
+                    <option value="hammer">Martillo</option>
+                    <option value="holy">Sagrada</option>
+                    <option value="nature">Naturaleza</option>
+                    <option value="spear">Lanza</option>
+                    <option value="sword">Espada</option>
+                    <option value="warrior">Guerrero</option>
+                </select>
+                <button onclick="loadBuilds()"><i class="fas fa-sync"></i> Actualizar Builds</button>
+            </div>
+            <div id="builds-container" class="builds-grid">
+                <!-- Builds se cargarán aquí -->
+            </div>
+        </section>
+
+        <!-- Sección Noticias -->
+        <section id="news" class="section">
+            <h1><i class="fas fa-newspaper"></i> Noticias de Albion</h1>
+            <div class="news-tabs">
+                <button class="news-tab active" data-lang="all">Todos</button>
+                <button class="news-tab" data-lang="en">English</button>
+                <button class="news-tab" data-lang="es">Español</button>
+            </div>
+            <div id="news-container" class="news-grid">
+                <!-- Noticias se cargarán aquí -->
+            </div>
+        </section>
+
+        <!-- Sección Media -->
+        <section id="media" class="section">
+            <h1><i class="fas fa-video"></i> Contenido Multimedia</h1>
+            <div class="media-tabs">
+                <button class="media-tab active" data-type="youtube">YouTube</button>
+                <button class="media-tab" data-type="twitch">Twitch</button>
+            </div>
+            <div id="media-container" class="media-grid">
+                <!-- Contenido multimedia se cargará aquí -->
+            </div>
+        </section>
+
+        <!-- Sección Updates -->
+        <section id="updates" class="section">
+            <h1><i class="fas fa-code-branch"></i> Updates y Changelog</h1>
+            <div class="updates-container">
+                <div class="update-filters">
+                    <select id="update-version">
+                        <option value="latest">Última versión</option>
+                        <option value="all">Todas</option>
+                    </select>
+                </div>
+                <div id="updates-list">
+                    <!-- Updates se cargarán aquí -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Notas -->
+        <section id="notes" class="section">
+            <h1><i class="fas fa-sticky-note"></i> Mis Notas de Juego</h1>
+            <div class="notes-container">
+                <div class="notes-editor">
+                    <input type="text" id="note-title" placeholder="Título de la nota...">
+                    <textarea id="note-content" placeholder="Escribe tu nota aquí..."></textarea>
+                    <div class="note-actions">
+                        <button onclick="saveNote()"><i class="fas fa-save"></i> Guardar Nota</button>
+                        <button onclick="clearNoteForm()"><i class="fas fa-times"></i> Limpiar</button>
+                    </div>
+                </div>
+                <div class="notes-list" id="notes-list">
+                    <!-- Notas guardadas se mostrarán aquí -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/market.js"></script>
+    <script src="js/gold.js"></script>
+    <script src="js/builds.js"></script>
+    <script src="js/news.js"></script>
+    <script src="js/media.js"></script>
+    <script src="js/updates.js"></script>
+    <script src="js/notes.js"></script>
+</body>
+</html>
