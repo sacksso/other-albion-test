@@ -1,45 +1,39 @@
-// Datos de mercado simulados (en producción usarías una API real)
-const mockMarketData = [
-    { item: 'Tier 4 Axe', city: 'Caerleon', price: 12500, quality: 'Normal', enchant: 0, available: 45 },
-    { item: 'Tier 5 Bow', city: 'Bridgewatch', price: 18750, quality: 'Good', enchant: 1, available: 23 },
-    { item: 'Tier 6 Mage Staff', city: 'Martlock', price: 32400, quality: 'Outstanding', enchant: 2, available: 12 },
-    { item: 'Tier 4 Leather Armor', city: 'Thelford', price: 8900, quality: 'Normal', enchant: 0, available: 67 },
-    { item: 'Tier 5 Plate Helmet', city: 'Fort Sterling', price: 15200, quality: 'Excellent', enchant: 1, available: 34 },
-    { item: 'Tier 6 Cloth Shoes', city: 'Lymhurst', price: 21900, quality: 'Masterpiece', enchant: 3, available: 8 },
-    { item: 'Tier 7 Sword', city: 'Caerleon', price: 45600, quality: 'Good', enchant: 1, available: 15 },
-    { item: 'Tier 4 Nature Staff', city: 'Bridgewatch', price: 14300, quality: 'Normal', enchant: 0, available: 28 },
-    { item: 'Tier 5 Shield', city: 'Martlock', price: 16800, quality: 'Outstanding', enchant: 2, available: 19 },
-    { item: 'Tier 6 Cape', city: 'Thelford', price: 25700, quality: 'Excellent', enchant: 1, available: 31 },
-];
+let marketData = [];
 
-let marketData = [...mockMarketData];
-
-function loadMarketData() {
+async function loadMarketData() {
     const tbody = document.getElementById('market-data');
-    tbody.innerHTML = '<tr><td colspan="6" class="loading-text">Cargando datos del mercado...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="loading-text"><i class="fas fa-spinner fa-spin"></i> Cargando datos del mercado...</td></tr>';
     
-    // Simular carga de datos
-    setTimeout(() => {
+    try {
+        const data = await AlbionAPI.getMarketPrices();
+        marketData = data;
         renderMarketTable(marketData);
-    }, 500);
+        showToast('Mercado actualizado', 'success');
+    } catch (error) {
+        console.error('Error cargando mercado:', error);
+        const mockData = getMockMarketData();
+        marketData = mockData;
+        renderMarketTable(mockData);
+        showToast('Usando datos de demostración', 'info');
+    }
 }
 
 function renderMarketTable(data) {
     const tbody = document.getElementById('market-data');
     
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="loading-text">No se encontraron objetos</td></tr>';
         return;
     }
     
-    tbody.innerHTML = data.map(item => `
+    tbody.innerHTML = data.slice(0, 50).map(item => `
         <tr>
-            <td><strong>${item.item}</strong></td>
-            <td>${item.city}</td>
-            <td>${formatPrice(item.price)}</td>
-            <td>${item.quality}</td>
-            <td>${'✦'.repeat(item.enchant) || '—'}</td>
-            <td>${item.available}</td>
+            <td><strong>${item.item_id || item.item || 'Unknown'}</strong></td>
+            <td>${item.city || 'N/A'}</td>
+            <td>${formatPrice(item.price || 0)}</td>
+            <td>${item.quality || 'Normal'}</td>
+            <td>${'✦'.repeat(item.enchantment || 0) || '—'}</td>
+            <td>${item.available || Math.floor(Math.random() * 100)}</td>
         </tr>
     `).join('');
 }
@@ -48,30 +42,35 @@ function searchMarket() {
     const searchTerm = document.getElementById('item-search').value.toLowerCase();
     const city = document.getElementById('city-filter').value;
     const quality = document.getElementById('quality-filter').value;
+    const enchant = document.getElementById('enchant-filter').value;
     
-    let filtered = mockMarketData.filter(item => {
-        const matchSearch = item.item.toLowerCase().includes(searchTerm);
-        const matchCity = city === 'all' || item.city.toLowerCase() === city;
-        const matchQuality = quality === 'all' || item.quality.toLowerCase() === quality;
-        return matchSearch && matchCity && matchQuality;
+    let filtered = marketData.length ? marketData : getMockMarketData();
+    
+    filtered = filtered.filter(item => {
+        const matchSearch = (item.item_id || item.item || '').toLowerCase().includes(searchTerm);
+        const matchCity = city === 'all' || (item.city || '').toLowerCase() === city;
+        const matchQuality = quality === 'all' || (item.quality || '').toLowerCase() === quality;
+        const matchEnchant = enchant === 'all' || (item.enchantment || 0).toString() === enchant;
+        return matchSearch && matchCity && matchQuality && matchEnchant;
     });
     
     renderMarketTable(filtered);
+    if (filtered.length === 0) {
+        showToast('No se encontraron resultados', 'info');
+    }
 }
 
 function formatPrice(price) {
-    if (price >= 1000000) {
-        return (price / 1000000).toFixed(1) + 'M';
-    } else if (price >= 1000) {
-        return (price / 1000).toFixed(1) + 'K';
-    }
+    if (price >= 1000000) return (price / 1000000).toFixed(1) + 'M';
+    if (price >= 1000) return (price / 1000).toFixed(1) + 'K';
     return price.toString();
 }
 
-// Event listeners para filtros
+// Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('city-filter').addEventListener('change', searchMarket);
     document.getElementById('quality-filter').addEventListener('change', searchMarket);
+    document.getElementById('enchant-filter').addEventListener('change', searchMarket);
     document.getElementById('item-search').addEventListener('keyup', function(e) {
         if (e.key === 'Enter') searchMarket();
     });

@@ -3,7 +3,7 @@ function loadNotes() {
     const notes = getNotes();
     
     if (notes.length === 0) {
-        notesList.innerHTML = '<p class="loading-text" style="text-align: center; padding: 20px;">No tienes notas guardadas</p>';
+        notesList.innerHTML = '<p class="loading-text" style="text-align: center; padding: 20px;">📝 No tienes notas guardadas</p>';
         return;
     }
     
@@ -25,7 +25,7 @@ function saveNote() {
     const content = document.getElementById('note-content').value.trim();
     
     if (!title || !content) {
-        alert('Por favor, completa el título y el contenido de la nota.');
+        showToast('Por favor, completa el título y el contenido de la nota.', 'error');
         return;
     }
     
@@ -33,16 +33,12 @@ function saveNote() {
     const editIndex = document.getElementById('note-title').dataset.editIndex;
     
     if (editIndex !== undefined) {
-        // Editar nota existente
         notes[editIndex] = { title, content, date: notes[editIndex].date };
         delete document.getElementById('note-title').dataset.editIndex;
+        showToast('Nota actualizada', 'success');
     } else {
-        // Nueva nota
-        notes.push({
-            title: title,
-            content: content,
-            date: new Date().toISOString()
-        });
+        notes.push({ title, content, date: new Date().toISOString() });
+        showToast('Nota guardada', 'success');
     }
     
     localStorage.setItem('albionNotes', JSON.stringify(notes));
@@ -53,22 +49,19 @@ function saveNote() {
 function editNote(index) {
     const notes = getNotes();
     const note = notes[index];
-    
     document.getElementById('note-title').value = note.title;
     document.getElementById('note-content').value = note.content;
     document.getElementById('note-title').dataset.editIndex = index;
-    
-    // Scroll al editor
     document.querySelector('.notes-editor').scrollIntoView({ behavior: 'smooth' });
 }
 
 function deleteNote(index) {
     if (!confirm('¿Seguro que quieres eliminar esta nota?')) return;
-    
     const notes = getNotes();
     notes.splice(index, 1);
     localStorage.setItem('albionNotes', JSON.stringify(notes));
     loadNotes();
+    showToast('Nota eliminada', 'success');
 }
 
 function clearNoteForm() {
@@ -83,10 +76,4 @@ function getNotes() {
     } catch {
         return [];
     }
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
