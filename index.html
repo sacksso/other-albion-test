@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Albion Online Hub</title>
+    <meta name="description" content="Herramienta completa para jugadores de Albion Online">
+    <meta name="theme-color" content="#c9a84c">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- Sidebar -->
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
         <div class="logo">
             <img src="assets/images/albion-logo.png" alt="Albion Online" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚔️</text></svg>'">
             <h2>Albion Hub</h2>
@@ -19,10 +23,12 @@
             <li data-section="market"><i class="fas fa-chart-line"></i><span>Mercado</span></li>
             <li data-section="gold"><i class="fas fa-coins"></i><span>Precio Oro</span></li>
             <li data-section="builds"><i class="fas fa-sword"></i><span>Builds</span></li>
+            <li data-section="calculator"><i class="fas fa-calculator"></i><span>Calculadora</span></li>
             <li data-section="news"><i class="fas fa-newspaper"></i><span>Noticias</span></li>
             <li data-section="media"><i class="fas fa-video"></i><span>Media</span></li>
             <li data-section="updates"><i class="fas fa-code-branch"></i><span>Updates</span></li>
             <li data-section="notes"><i class="fas fa-sticky-note"></i><span>Notas</span></li>
+            <li id="theme-toggle" style="cursor: pointer;"><i class="fas fa-moon"></i><span>Cambiar Tema</span></li>
         </ul>
     </nav>
 
@@ -33,7 +39,8 @@
             <h1><i class="fas fa-map"></i> Mapa de Albion</h1>
             <div class="map-container">
                 <div class="map-wrapper">
-                    <img src="https://raw.githubusercontent.com/ao-data/albion-online-map/master/images/map-full.jpg" alt="Mapa Albion Online" class="map-image" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22><rect width=%22800%22 height=%22600%22 fill=%22%232d2d2d%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2224%22>Mapa no disponible</text></svg>'">
+                    <!-- URL del mapa actualizada a una más estable -->
+                    <img src="https://i.imgur.com/OYtVgL8.jpeg" alt="Mapa Albion Online" class="map-image" id="map-image" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22800%22 height=%22600%22><rect width=%22800%22 height=%22600%22 fill=%22%232d2d2d%22/><text x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 fill=%22%23c9a84c%22 font-size=%2224%22>Mapa no disponible</text></svg>'">
                     <div class="map-controls">
                         <button onclick="zoomIn()"><i class="fas fa-plus"></i></button>
                         <button onclick="zoomOut()"><i class="fas fa-minus"></i></button>
@@ -70,8 +77,16 @@
                     <option value="excellent">Excelente</option>
                     <option value="masterpiece">Obra Maestra</option>
                 </select>
+                <select id="enchant-filter">
+                    <option value="all">Todos los Encantamientos</option>
+                    <option value="0">Sin encantamiento</option>
+                    <option value="1">Nivel 1</option>
+                    <option value="2">Nivel 2</option>
+                    <option value="3">Nivel 3</option>
+                </select>
                 <input type="text" id="item-search" placeholder="Buscar objeto...">
                 <button onclick="searchMarket()"><i class="fas fa-search"></i> Buscar</button>
+                <button onclick="loadMarketData()"><i class="fas fa-sync"></i> Actualizar</button>
             </div>
             <div class="market-table-container">
                 <table class="market-table">
@@ -159,6 +174,14 @@
             </div>
         </section>
 
+        <!-- Sección Calculadora -->
+        <section id="calculator" class="section">
+            <h1><i class="fas fa-calculator"></i> Calculadora de Items</h1>
+            <div id="calculator-container">
+                <!-- Se renderiza con JavaScript -->
+            </div>
+        </section>
+
         <!-- Sección Noticias -->
         <section id="news" class="section">
             <h1><i class="fas fa-newspaper"></i> Noticias de Albion</h1>
@@ -219,8 +242,14 @@
         </section>
     </main>
 
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/calculator.js"></script>
     <script src="js/map.js"></script>
     <script src="js/market.js"></script>
     <script src="js/gold.js"></script>
