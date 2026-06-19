@@ -17,8 +17,11 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             const sectionId = this.dataset.section;
             if (sectionId) {
-                document.getElementById(sectionId).classList.add('active');
-                loadSectionData(sectionId);
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    loadSectionData(sectionId);
+                }
             }
             
             if (window.innerWidth <= 768) {
@@ -39,10 +42,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cargar tema guardado
     loadTheme();
     
-    // Cargar datos iniciales
+    // Cargar datos iniciales con un pequeño retraso para asegurar que todo está listo
     setTimeout(() => {
+        // Cargar sección activa (mapa por defecto)
         loadSectionData('map');
-    }, 100);
+        // Precargar otras secciones importantes
+        setTimeout(() => {
+            loadSectionData('gold');
+            loadSectionData('market');
+            loadSectionData('builds');
+            loadSectionData('news');
+            loadSectionData('media');
+            loadSectionData('updates');
+            loadSectionData('calculator');
+        }, 500);
+    }, 300);
     
     // Auto-refresh cada 60 segundos
     setInterval(() => {
@@ -84,6 +98,11 @@ function loadSectionData(sectionId) {
                 }
             }
             break;
+        case 'map':
+            // El mapa se carga solo, no necesita función específica
+            break;
+        default:
+            console.log('Sección no reconocida:', sectionId);
     }
 }
 
@@ -95,7 +114,11 @@ function showToast(message, type = 'info') {
     toast.className = `toast ${type}`;
     toast.textContent = message;
     container.appendChild(toast);
-    setTimeout(() => { toast.remove(); }, 3500);
+    setTimeout(() => { 
+        if (toast.parentNode) {
+            toast.remove(); 
+        }
+    }, 3500);
 }
 
 // ===== TEMA OSCURO/CLARO =====
@@ -108,6 +131,7 @@ function toggleTheme() {
     if (icon) {
         icon.className = newTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
     }
+    showToast(`Tema cambiado a ${newTheme === 'light' ? 'claro' : 'oscuro'}`, 'success');
 }
 
 function loadTheme() {
@@ -121,15 +145,23 @@ function loadTheme() {
 
 // ===== UTILITIES =====
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-    });
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return 'Fecha no disponible';
+        }
+        return date.toLocaleDateString('es-ES', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    } catch (e) {
+        return 'Fecha no disponible';
+    }
 }
 
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;

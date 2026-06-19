@@ -14,6 +14,10 @@ async function loadGoldData() {
 }
 
 function updateGoldUI(data) {
+    if (!data || data.length === 0) {
+        data = generateMockGoldData();
+    }
+    
     const currentPrice = data[data.length - 1] || 3500;
     
     document.getElementById('gold-price').textContent = formatGoldPrice(currentPrice);
@@ -45,15 +49,25 @@ function generateMockGoldData() {
 }
 
 function createGoldChart(data) {
-    const ctx = document.getElementById('goldChart').getContext('2d');
-    if (goldChart) { goldChart.destroy(); }
+    const ctx = document.getElementById('goldChart');
+    if (!ctx) return;
+    
+    const context = ctx.getContext('2d');
+    if (goldChart) { 
+        goldChart.destroy(); 
+        goldChart = null;
+    }
     
     const labels = data.map((_, i) => {
         const hours = 23 - i;
         return `${hours}:00`;
     }).reverse();
     
-    goldChart = new Chart(ctx, {
+    const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+    const textColor = isLightTheme ? '#2d1f0e' : '#e6d5b8';
+    const gridColor = isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)';
+    
+    goldChart = new Chart(context, {
         type: 'line',
         data: {
             labels: labels,
@@ -65,7 +79,9 @@ function createGoldChart(data) {
                 fill: true,
                 tension: 0.4,
                 pointRadius: 3,
-                pointBackgroundColor: '#c9a84c'
+                pointBackgroundColor: '#c9a84c',
+                pointBorderColor: '#c9a84c',
+                pointBorderWidth: 1
             }]
         },
         options: {
@@ -74,22 +90,35 @@ function createGoldChart(data) {
             plugins: {
                 legend: { 
                     labels: { 
-                        color: document.documentElement.getAttribute('data-theme') === 'light' ? '#2d1f0e' : '#e6d5b8' 
+                        color: textColor,
+                        font: { size: 12 }
                     } 
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Precio: ' + formatGoldPrice(context.parsed.y);
+                        }
+                    }
                 }
             },
             scales: {
                 x: { 
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
-                    ticks: { color: '#8a7a5a' } 
+                    grid: { color: gridColor }, 
+                    ticks: { color: '#8a7a5a', font: { size: 10 } }
                 },
                 y: { 
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                    grid: { color: gridColor }, 
                     ticks: { 
                         color: '#8a7a5a', 
+                        font: { size: 10 },
                         callback: function(value) { return formatGoldPrice(value); } 
                     } 
                 }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
             }
         }
     });
@@ -99,3 +128,17 @@ function formatGoldPrice(price) {
     if (price >= 1000) return (price / 1000).toFixed(1) + 'K';
     return price.toString();
 }
+
+// Actualizar gráfico cuando cambie el tema
+document.addEventListener('themeChanged', function() {
+    if (goldChart) {
+        const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+        const textColor = isLightTheme ? '#2d1f0e' : '#e6d5b8';
+        const gridColor = isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.05)';
+        
+        goldChart.options.plugins.legend.labels.color = textColor;
+        goldChart.options.scales.x.grid.color = gridColor;
+        goldChart.options.scales.y.grid.color = gridColor;
+        goldChart.update();
+    }
+});

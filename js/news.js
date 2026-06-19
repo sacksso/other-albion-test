@@ -2,6 +2,8 @@ let currentNewsLang = 'all';
 
 async function loadNews() {
     const container = document.getElementById('news-container');
+    if (!container) return;
+    
     container.innerHTML = '<div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Cargando noticias...</div>';
     
     try {
@@ -15,6 +17,7 @@ async function loadNews() {
 
 function renderNews(news) {
     const container = document.getElementById('news-container');
+    if (!container) return;
     
     if (!news || news.length === 0) {
         container.innerHTML = '<p class="loading-text">No hay noticias disponibles</p>';

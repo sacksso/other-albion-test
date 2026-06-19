@@ -1,8 +1,10 @@
 async function loadUpdates() {
     const container = document.getElementById('updates-list');
+    if (!container) return;
+    
     container.innerHTML = '<div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Cargando historial de updates...</div>';
     
-    const versionFilter = document.getElementById('update-version').value;
+    const versionFilter = document.getElementById('update-version')?.value || 'latest';
     
     try {
         let updates = await AlbionAPI.getUpdates();
@@ -19,6 +21,7 @@ async function loadUpdates() {
 
 function renderUpdates(updates) {
     const container = document.getElementById('updates-list');
+    if (!container) return;
     
     if (!updates || updates.length === 0) {
         container.innerHTML = '<p class="loading-text">No hay updates disponibles</p>';
@@ -41,5 +44,8 @@ function renderUpdates(updates) {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('update-version').addEventListener('change', loadUpdates);
+    const versionSelect = document.getElementById('update-version');
+    if (versionSelect) {
+        versionSelect.addEventListener('change', loadUpdates);
+    }
 });

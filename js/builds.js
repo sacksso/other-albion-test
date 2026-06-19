@@ -1,9 +1,11 @@
 async function loadBuilds() {
     const container = document.getElementById('builds-container');
+    if (!container) return;
+    
     container.innerHTML = '<div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Cargando builds...</div>';
     
-    const type = document.getElementById('build-type').value;
-    const weapon = document.getElementById('build-weapon').value;
+    const type = document.getElementById('build-type')?.value || 'all';
+    const weapon = document.getElementById('build-weapon')?.value || 'all';
     
     try {
         const builds = await AlbionAPI.getBuilds(type, weapon);
@@ -17,6 +19,7 @@ async function loadBuilds() {
 
 function renderBuilds(builds) {
     const container = document.getElementById('builds-container');
+    if (!container) return;
     
     if (!builds || builds.length === 0) {
         container.innerHTML = '<p class="loading-text">No se encontraron builds con esos filtros</p>';
@@ -37,3 +40,8 @@ function renderBuilds(builds) {
         </div>
     `).join('');
 }
+
+// Cargar builds al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    // La carga se maneja desde app.js
+});

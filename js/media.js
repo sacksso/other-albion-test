@@ -2,6 +2,8 @@ let currentMediaType = 'youtube';
 
 async function loadMedia() {
     const container = document.getElementById('media-container');
+    if (!container) return;
+    
     container.innerHTML = '<div class="loading-text"><i class="fas fa-spinner fa-spin"></i> Cargando contenido...</div>';
     
     try {
@@ -16,9 +18,10 @@ async function loadMedia() {
 
 function renderMedia(media) {
     const container = document.getElementById('media-container');
+    if (!container) return;
     
     if (!media || media.length === 0) {
-        container.innerHTML = '<p class="loading-text">No hay contenido disponible</p>';
+        container.innerHTML = '<p class="loading-text">No hay contenido disponible en este momento</p>';
         return;
     }
     

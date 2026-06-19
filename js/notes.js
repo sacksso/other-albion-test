@@ -1,5 +1,7 @@
 function loadNotes() {
     const notesList = document.getElementById('notes-list');
+    if (!notesList) return;
+    
     const notes = getNotes();
     
     if (notes.length === 0) {

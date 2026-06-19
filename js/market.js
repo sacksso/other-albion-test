@@ -5,10 +5,11 @@ async function loadMarketData() {
     tbody.innerHTML = '<tr><td colspan="6" class="loading-text"><i class="fas fa-spinner fa-spin"></i> Cargando datos del mercado...</td></tr>';
     
     try {
+        // Usar la API que siempre devuelve datos de ejemplo
         const data = await AlbionAPI.getMarketPrices();
         marketData = data;
         renderMarketTable(marketData);
-        showToast('Mercado actualizado', 'success');
+        showToast('Mercado actualizado con datos de ejemplo', 'success');
     } catch (error) {
         console.error('Error cargando mercado:', error);
         const mockData = getMockMarketData();
@@ -47,16 +48,22 @@ function searchMarket() {
     let filtered = marketData.length ? marketData : getMockMarketData();
     
     filtered = filtered.filter(item => {
-        const matchSearch = (item.item_id || item.item || '').toLowerCase().includes(searchTerm);
-        const matchCity = city === 'all' || (item.city || '').toLowerCase() === city;
-        const matchQuality = quality === 'all' || (item.quality || '').toLowerCase() === quality;
-        const matchEnchant = enchant === 'all' || (item.enchantment || 0).toString() === enchant;
+        const itemName = (item.item_id || item.item || '').toLowerCase();
+        const itemCity = (item.city || '').toLowerCase();
+        const itemQuality = (item.quality || '').toLowerCase();
+        const itemEnchant = (item.enchantment || 0).toString();
+        
+        const matchSearch = itemName.includes(searchTerm);
+        const matchCity = city === 'all' || itemCity === city;
+        const matchQuality = quality === 'all' || itemQuality === quality;
+        const matchEnchant = enchant === 'all' || itemEnchant === enchant;
+        
         return matchSearch && matchCity && matchQuality && matchEnchant;
     });
     
     renderMarketTable(filtered);
     if (filtered.length === 0) {
-        showToast('No se encontraron resultados', 'info');
+        showToast('No se encontraron resultados con esos filtros', 'info');
     }
 }
 
@@ -68,10 +75,17 @@ function formatPrice(price) {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('city-filter').addEventListener('change', searchMarket);
-    document.getElementById('quality-filter').addEventListener('change', searchMarket);
-    document.getElementById('enchant-filter').addEventListener('change', searchMarket);
-    document.getElementById('item-search').addEventListener('keyup', function(e) {
-        if (e.key === 'Enter') searchMarket();
-    });
+    const cityFilter = document.getElementById('city-filter');
+    const qualityFilter = document.getElementById('quality-filter');
+    const enchantFilter = document.getElementById('enchant-filter');
+    const searchInput = document.getElementById('item-search');
+    
+    if (cityFilter) cityFilter.addEventListener('change', searchMarket);
+    if (qualityFilter) qualityFilter.addEventListener('change', searchMarket);
+    if (enchantFilter) enchantFilter.addEventListener('change', searchMarket);
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') searchMarket();
+        });
+    }
 });
