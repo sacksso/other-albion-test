@@ -1,21 +1,18 @@
 {
-    "name": "Albion Online Hub",
-    "short_name": "Albion Hub",
-    "description": "Herramienta completa para jugadores de Albion Online",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#1a1a1a",
-    "theme_color": "#c9a84c",
-    "icons": [
-        {
-            "src": "assets/icons/icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "assets/icons/icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "AlbionTools - Mercado, Pesca y Builds",
+  "short_name": "AlbionTools",
+  "description": "Precios en tiempo real del mercado, calculadora de Pescado Picado y creador de builds para Albion Online",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#161b22",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icons/icon-32.png",  "sizes": "32x32",   "type": "image/png" },
+    { "src": "icons/icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["utilities", "games"],
+  "lang": "es"
 }
